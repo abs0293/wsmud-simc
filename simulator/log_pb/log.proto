@@ -1,0 +1,96 @@
+syntax = "proto3";
+package protoc;
+option go_package = ".;log_pb";
+
+message SourcedDouble {
+    string source = 1;
+    double value = 2;
+}
+
+message SourcedBool {
+    string source = 1;
+    bool value = 2;
+}
+
+message Modifier {
+    string name = 1;
+    double value = 2;
+}
+
+message Log {
+    int32 timestamp = 1;
+    int32 serial_number = 2;
+    string player = 3;
+    Attack attack = 4;
+    Run run = 5;
+    Aura aura = 6;
+
+    message Attack {
+        string target = 1;
+        string source = 2;
+        Kind kind = 3;
+        Class class = 4;
+        HitCheck hit_check = 5;
+        double damage_main = 6;
+        bool true_damage = 7;
+        repeated SourcedDouble damage_add = 8; 
+        SourcedBool damage_immunity = 9;
+        repeated SourcedDouble damage_absort = 10;
+        repeated SourcedDouble damage_reflect = 11;
+        repeated SourcedDouble hp_leech = 12;
+        repeated SourcedDouble mp_leech = 13;
+        double damage_final = 14;
+        int32 cooldown = 15;
+        repeated Modifier modifier = 16;
+
+        enum Kind {
+            Kind_Unknown = 0;
+            Kind_Main = 1;
+            Kind_Extra = 2;
+            Kind_Perform = 3;
+        }
+        enum Class {
+            Class_Unknown = 0;
+            Class_Unarmed = 1;
+            Class_Weapone = 2;
+            Class_Force = 3;
+            Class_Throwing = 4;
+        }
+        message HitCheck {
+            double attacker_hit = 2;
+            double target_dodge = 3;
+            double target_parry = 4;
+            Result result = 5;
+            enum Result {
+                Result_Unknown = 0;
+                Result_Hit = 1;
+                Result_Dodge = 2;
+                Result_Parry = 3;
+            }
+        }
+    }
+    message Run {
+        string name = 1;
+        string target = 2;
+        int32 cast_time = 3;
+        int32 cooldown = 4;
+        double mp_cost = 5;
+        SourcedBool fail = 6;
+    }
+    message Aura {
+        string name = 1;
+        string type = 2;
+        Event event = 3;
+        int32 remaining = 4;
+        bool debuff = 5;
+        int32 stacks = 6;
+        repeated Modifier modifier = 7;
+
+        enum Event {
+            Event_Unknown = 0;
+            Event_Add = 1;
+            Event_Remove = 2;
+            Event_Refresh = 3;
+        }
+    }
+}

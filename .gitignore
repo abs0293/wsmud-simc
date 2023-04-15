@@ -1,0 +1,7 @@
+wssimc
+cmd/*/bin
+cmd/shell
+log*.txt
+config.yaml
+deprecated
+cmd/skill-generator
