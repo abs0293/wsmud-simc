@@ -40,8 +40,12 @@ func (pfm *Perform_FuYuJianFa_JianGang) Run(ctx *RunContext) {
 		return
 	}
 
-	// pfm.Attack(ctx)
-	// pfm.Player.AddBuff(BuffRepo.Build("", pfm.Player, pfm.Level))
+	rate := 1.0 + float64(pfm.Level)*0.001
+	pfm.Attack(
+		ctx,
+		Modifier{"绝招.伤害倍率%", rate},
+		Modifier{"绝招.命中倍率%", rate},
+	)
 }
 
 func Perform_FuYuJianFa_JianGang_Builder(player *Player, level int, mixed bool) Perform {
