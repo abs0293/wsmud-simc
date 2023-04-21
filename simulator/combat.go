@@ -305,6 +305,7 @@ func GenericAttack(ctx *CombatContext) {
 	// 闪避
 	if hitResult == Hit_Result_Dodge {
 		ctx.SetDodge()
+		// ProcessDodgeTrigger(ctx)
 	}
 
 	// 招架
@@ -339,7 +340,9 @@ func GenericAttack(ctx *CombatContext) {
 	}
 
 	// 内力附加
-	rawDamage += CalcForceDamageAdd(ctx)
+	if !ctx.IsDodge() {
+		rawDamage += CalcForceDamageAdd(ctx)
+	}
 	// 伤害反射
 	ProcessDamageReflection(ctx)
 	if !attacker.IsAlive() {
