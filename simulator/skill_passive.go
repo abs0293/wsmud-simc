@@ -261,7 +261,7 @@ func (p *Passive_ZiChuang_Rumo) DamageAdd() float64 {
 	if p.player.SubMP(cost) > 0 {
 		return 0
 	}
-	return v * (1 + p.player.GetFinalDamagePercent())
+	return v
 }
 
 func Passive_ZiChuang_Rumo_Builder(player *Player, weapon bool, data PassiveData) *Passive_ZiChuang_Rumo {
