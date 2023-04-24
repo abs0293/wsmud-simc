@@ -155,6 +155,16 @@ func (w *Weapon) Unwield() {
 	}
 }
 
+func (w *Weapon) Rewield() Runable {
+	return RunFunc(func(ctx *RunContext) {
+		ctx.SetName("装备武器")
+		p := ctx.attacker
+		p.Weapon.Wield()
+		p.AttackCD.Start(3000)
+		p.CastTime.Start(3000)
+	})
+}
+
 func NewWeapon(player *Player, data WeaponData) *Weapon {
 	w := &Weapon{
 		Player:   player,

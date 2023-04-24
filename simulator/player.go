@@ -350,6 +350,10 @@ func (p *Player) Action() {
 		can := []Runable{}
 		can = append(can, p.Skills.CanRun(p.Target)...)
 		can = append(can, p.Equipments.CanRun(p.Target)...)
+		// 重新装备武器
+		if p.Weapon != nil && !p.Weapon.Wielded {
+			can = append(can, p.Weapon.Rewield())
+		}
 		if len(can) > 0 {
 			ctx := NewRunContext(p, p.Target, p.Arena.Ticks)
 			r := can[p.Roll.Intn(len(can))]

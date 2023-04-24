@@ -54,6 +54,14 @@ type Runable interface {
 	Run(*RunContext)
 }
 
+type RunFunc func(*RunContext)
+
+func (fn RunFunc) Run(ctx *RunContext) {
+	if fn != nil {
+		fn(ctx)
+	}
+}
+
 // 武学管理器
 type Skills struct {
 	Owner     *Player
