@@ -208,6 +208,14 @@ func (a *BasePerform) CanRun(target *Player, args ...interface{}) bool {
 	if target != nil && !target.IsAlive() {
 		return false
 	}
+	if a.Type == "weapon" {
+		if a.Player.Weapon == nil {
+			return false
+		}
+		if !a.Player.Weapon.Wielded {
+			return false
+		}
+	}
 	if cost := CalcMPCostP(a.MPCost, a.Player); cost > a.Player.GetMP() {
 		return false
 	}
