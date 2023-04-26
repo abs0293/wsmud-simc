@@ -17,6 +17,7 @@ type SkillPassives struct {
 	WanDaoRuMo    *Passive_YuanYueWanDao_Rumo
 	FuYu          *Passive_FuYuJianFa_FuYu
 	DuGu          *Passive_DuGuJianJue_DuGu
+	WuJi          *Passive_TaiJiZhenYi_WuJi
 }
 
 func (mgr *SkillPassives) Load(player *Player, sdata SkillData) {
@@ -49,6 +50,8 @@ func (mgr *SkillPassives) Load(player *Player, sdata SkillData) {
 		mgr.FuYu = Passive_FuYuJianFa_FuYu_Builder(player, data)
 	case "独孤剑诀.独孤":
 		mgr.DuGu = Passive_DuGuJianJue_DuGu_Builder(player, data)
+	case "太极真义.无极":
+		mgr.WuJi = Passive_TaiJiZhenYi_WuJi_Builder(player, data)
 	default:
 		log.Println("不支持被动:", data.Name)
 	}
@@ -56,6 +59,7 @@ func (mgr *SkillPassives) Load(player *Player, sdata SkillData) {
 
 func (p *SkillPassives) Update(diff int) {
 	p.BuMie.Update(diff)
+	p.WuJi.Update(diff)
 }
 
 func NewSkillPassives(player *Player, datas ...SkillData) *SkillPassives {
@@ -366,5 +370,68 @@ func Passive_DuGuJianJue_DuGu_Builder(player *Player, data PassiveData) *Passive
 	return &Passive_DuGuJianJue_DuGu{
 		player: player,
 		level:  data.Level,
+	}
+}
+
+// 太极真义.无极
+type Passive_TaiJiZhenYi_WuJi struct {
+	player *Player
+	level  int
+	timer  *Timer
+}
+
+func (p *Passive_TaiJiZhenYi_WuJi) Run(target *Player) *RunContext {
+	if !p.timer.IsDone() {
+		return nil
+	}
+
+	var (
+		attacker  = p.player
+		skillType string
+	)
+
+	rctx := NewRunContext(attacker, target, attacker.Arena.Ticks)
+	rctx.SetTrigger("太极真义.无极")
+	rctx.SetSkipPreflight(true)
+	// 先选部位, 即使该部位没有绝招也会选中
+	if attacker.Weapon == nil || !attacker.Weapon.Wielded {
+		skillType = "unarmed"
+	} else {
+		if attacker.Roll.Float64() < 0.5 {
+			skillType = "weapon"
+		} else {
+			skillType = "unarmed"
+		}
+	}
+	// 再选绝招
+	pfmPool := []Perform{}
+	for _, p := range attacker.Skills.Performs {
+		if p.GetType() == skillType {
+			pfmPool = append(pfmPool, p)
+		}
+	}
+	pfm := pfmPool[attacker.Roll.Intn(len(pfmPool))]
+	if pfm != nil {
+		// 等级为太极真义的等级
+		pfm := PerformRepo.Build(pfm.GetName(), attacker, p.level, pfm.IsMixed())
+		pfm.Run(rctx)
+	}
+
+	p.timer.Start(3000)
+	return rctx
+}
+
+func (p *Passive_TaiJiZhenYi_WuJi) Update(diff int) {
+	if p == nil {
+		return
+	}
+	p.timer.Update(diff)
+}
+
+func Passive_TaiJiZhenYi_WuJi_Builder(player *Player, data PassiveData) *Passive_TaiJiZhenYi_WuJi {
+	return &Passive_TaiJiZhenYi_WuJi{
+		player: player,
+		level:  data.Level,
+		timer:  NewTimer(),
 	}
 }

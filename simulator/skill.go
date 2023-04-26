@@ -145,7 +145,9 @@ type Perform interface {
 	IsInitOnly() bool
 	Update(int)
 	IsReady() bool
+	IsMixed() bool
 	Reset()
+	AddCoolDown(int)
 	CanRun(*Player, ...interface{}) bool
 	Run(*RunContext)
 }
@@ -177,6 +179,10 @@ func (a *BasePerform) IsInitOnly() bool {
 	return a.InitOnly
 }
 
+func (a *BasePerform) IsMixed() bool {
+	return a.Mixed
+}
+
 func (a *BasePerform) GetType() string {
 	return a.Type
 }
@@ -187,6 +193,10 @@ func (a *BasePerform) Update(diff int) {
 
 func (a *BasePerform) Reset() {
 	a.Timer.Done()
+}
+
+func (a *BasePerform) AddCoolDown(add int) {
+	a.Timer.Start(a.Timer.GetRemaining() + add)
 }
 
 func (a *BasePerform) CanRun(target *Player, args ...interface{}) bool {
@@ -225,6 +235,10 @@ func (a *BasePerform) CanRun(target *Player, args ...interface{}) bool {
 func (a *BasePerform) PreFlight(ctx *RunContext) {
 	ctx.SetName(a.Name)
 
+	if ctx.IsSkipPrefight() {
+		return
+	}
+
 	if !a.CanRun(ctx.target) {
 		return
 	}
@@ -244,6 +258,10 @@ func (a *BasePerform) PreFlight(ctx *RunContext) {
 	// 失败也要给钱,概不赊账
 	if a.Name == "长生诀.天地诀" {
 		cd = CalcCoolDownPWithouts(a.CoolDown, attacker, "慈航剑典.剑心")
+	}
+	// 太极真义.大道无极冷却时间固定45秒
+	if a.Name == "太极真义.大道无极" {
+		cd = a.CoolDown
 	}
 	attacker.SubMP(mp)
 	attacker.CastTime.Start(ct)

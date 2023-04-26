@@ -71,11 +71,12 @@ message Log {
     }
     message Run {
         string name = 1;
-        string target = 2;
-        int32 cast_time = 3;
-        int32 cooldown = 4;
-        double mp_cost = 5;
-        SourcedBool fail = 6;
+        string trigger = 2;
+        string target = 3;
+        int32 cast_time = 4;
+        int32 cooldown = 5;
+        double mp_cost = 6;
+        SourcedBool fail = 7;
     }
     message Aura {
         string name = 1;

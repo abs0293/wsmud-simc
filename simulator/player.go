@@ -386,6 +386,15 @@ func (p *Player) Action() {
 			pFuYu.DoExtraHit(ctx)
 		}
 		ctx.Done()
+		// 目标招架/闪避触发
+		if ctx.IsParry() && p.Target.IsAlive() {
+			if tWuJi := p.Target.Skills.Passives.WuJi; tWuJi != nil {
+				rctx := tWuJi.Run(p)
+				if rctx != nil {
+					rctx.Done()
+				}
+			}
+		}
 		done = true
 	}
 

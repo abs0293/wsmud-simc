@@ -444,9 +444,19 @@ func NewCombatContext(attacker *Player, target *Player, ts int, mods ...Modifier
 type RunContext struct {
 	attacker *Player
 	target   *Player
+	skipPf   bool
 	done     bool
 	attack   []*CombatContext
 	log      *log_pb.Log
+}
+
+func (ctx *RunContext) SetSkipPreflight(skip bool) *RunContext {
+	ctx.skipPf = skip
+	return ctx
+}
+
+func (ctx *RunContext) IsSkipPrefight() bool {
+	return ctx.skipPf
 }
 
 func (ctx *RunContext) SetAttacker(attacker *Player) *RunContext {
@@ -457,6 +467,15 @@ func (ctx *RunContext) SetAttacker(attacker *Player) *RunContext {
 
 func (ctx *RunContext) GetAttacker() *Player {
 	return ctx.attacker
+}
+
+func (ctx *RunContext) SetTrigger(trigger string) *RunContext {
+	ctx.log.Run.Trigger = trigger
+	return ctx
+}
+
+func (ctx *RunContext) GetTrigger() string {
+	return ctx.log.Run.Trigger
 }
 
 func (ctx *RunContext) SetTarget(target *Player) *RunContext {
