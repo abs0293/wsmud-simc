@@ -176,6 +176,8 @@ func NewWeapon(player *Player, data WeaponData) *Weapon {
 		switch data.PassiveData.Name {
 		case "鹰刀":
 			w.Passives.YinDao = WeaponPassives_YinDao_Builder(player, data.PassiveData.Level)
+		case "盘古斧":
+			w.Passives.PanGuFu = WeaponPassives_PanGuFu_Builder(player, data.PassiveData.Level)
 		default:
 			log.Println("不支持武器被动:", data.PassiveData.Name)
 		}
@@ -185,7 +187,8 @@ func NewWeapon(player *Player, data WeaponData) *Weapon {
 
 // 武器被动
 type WeaponPassives struct {
-	YinDao *WeaponPassives_YinDao
+	YinDao  *WeaponPassives_YinDao
+	PanGuFu *WeaponPassives_PanGuFu
 }
 
 // 武器被动:鹰刀
@@ -249,6 +252,71 @@ func Buff_YinDao_Faint_Builder(player *Player, level int, args ...interface{}) B
 	}
 }
 
+// 武器被动:盘古斧
+type WeaponPassives_PanGuFu struct {
+	Player *Player
+	Level  int
+}
+
+func (p *WeaponPassives_PanGuFu) Cripple(target *Player) {
+	if target == nil || target.HasBuff("盘古斧.盘古") {
+		return
+	}
+
+	target.AddBuff(BuffRepo.Build(
+		"盘古斧.盘古",
+		p.Player,
+		p.Level,
+		target.GetNegativeResistPercent(),
+	))
+}
+
+func WeaponPassives_PanGuFu_Builder(player *Player, level int) *WeaponPassives_PanGuFu {
+	return &WeaponPassives_PanGuFu{
+		Player: player,
+		Level:  level,
+	}
+}
+
+// 光环:盘古斧.盘古
+type Buff_PanGuFu_PanGu struct {
+	BaseBuff
+}
+
+func Buff_PanGuFu_PanGu_Builder(player *Player, level int, args ...interface{}) Buff {
+	irres := false
+	tnr := args[0].(float64)
+	mod := 0.18 + float64(level)*0.02
+
+	switch level {
+	case 2:
+		irres = true
+		mod *= (1 - tnr/0.1*0.05)
+	case 3:
+		irres = true
+		mod *= (1 - tnr/0.1*0.01)
+	}
+
+	return &Buff_PanGuFu_PanGu{
+		BaseBuff{
+			Name:         "盘古斧.盘古",
+			Type:         "pangu",
+			Debuff:       true,
+			Creator:      player,
+			Irresistible: irres,
+			Duration:     10000,
+			Modifiers: []Modifier{
+				{"绝招冷却%", -mod},
+				{"攻击%", -mod},
+				{"免伤%", -mod},
+				{"攻速%", -mod},
+				{"忽防%", -mod},
+			},
+		},
+	}
+}
+
 func init() {
 	BuffRepo.Add("鹰刀.昏迷", Buff_YinDao_Faint_Builder)
+	BuffRepo.Add("盘古斧.盘古", Buff_PanGuFu_PanGu_Builder)
 }
