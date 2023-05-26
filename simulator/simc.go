@@ -87,7 +87,7 @@ func (t *SimulationTask) Run() {
 				PlayerA:  NewPlayer(t.P1),
 				PlayerB:  NewPlayer(t.P2),
 				Roll:     rand.New(rand.NewSource(time.Now().UnixNano())),
-				Duration: 60000,
+				Duration: 1000 * 60 * 5,
 			}
 			r := lt.Start(lt.PlayerA, lt.PlayerB)
 			if !Silent {

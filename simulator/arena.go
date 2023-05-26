@@ -33,14 +33,16 @@ func (a *Arena) Start(pa, pb *Player) int {
 	pb.OnCombatStart()
 	for {
 		if a.GameOver() {
-			if a.PlayerA.IsAlive() {
-
-				return 0
-			} else if a.PlayerB.IsAlive() {
-				return 1
-			} else {
+			// 都活着,平局
+			if a.PlayerA.IsAlive() && a.PlayerB.IsAlive() {
 				return 2
 			}
+			// a赢了
+			if a.PlayerA.IsAlive() {
+				return 0
+			}
+			// b赢了
+			return 1
 		}
 
 		if a.Roll.Float64() < 0.5 {

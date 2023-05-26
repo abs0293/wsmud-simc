@@ -288,7 +288,8 @@ func (p *Passive_YuanYueWanDao_Rumo) DamageAdd(weak bool) float64 {
 	}
 	m := p.player.GetModifier("入魔.内力附加%")
 	v := p.player.GetMPMax() * p.rate * (1 + m)
-	if p.player.SubMP(v) > 0 {
+	cost := CalcMPCostP(v, p.player)
+	if p.player.SubMP(cost) > 0 {
 		if weak {
 			p.player.AddBuff(BuffRepo.Build("圆月弯刀.虚弱", p.player, 0))
 		}
